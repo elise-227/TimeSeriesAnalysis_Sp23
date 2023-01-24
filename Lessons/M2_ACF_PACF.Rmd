@@ -156,3 +156,16 @@ plot(ts_inflow_data[,1])
 
 Note that ts_inflow_data has information on start, end and frequency. We will discuss frequency in future lectures, for now let's just keep the default value for frequency which is 1.
 
+```{r}
+#run autocorrelation on HP1 
+acf(ts_inflow_data[,1])
+#each bar represents the autocorrelation
+#0 is always 1 -> Yt autocorrelation to Yt
+
+#seasonal component 
+#draws up to 30 legs, sig correlations up to 30 legs 
+#blue lines are the significant values, within blue is not significant 
+
+pacf(ts_inflow_data[,1])
+```
+
