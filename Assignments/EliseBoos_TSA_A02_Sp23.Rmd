@@ -22,6 +22,9 @@ R packages needed for this assignment:"forecast","tseries", and "dplyr". Install
 
 ```{r}
 #Load/install required package here
+require(forecast)
+require(tseries)
+require(dplyr)
 
 ```
 
