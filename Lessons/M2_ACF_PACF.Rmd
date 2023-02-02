@@ -167,7 +167,11 @@ acf(ts_inflow_data[,1], lag.max =50)
 #blue lines are the significant values, within blue is not significant 
 
 pacf(ts_inflow_data[,1], lag.max = 50)
-
 library(forecast)
+```
+
+
+```{r}
+inflow_sub <- inflow_data[(year(inflow_data$my_date) < 2011),]
 ```
 
