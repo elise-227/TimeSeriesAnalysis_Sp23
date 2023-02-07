@@ -38,7 +38,8 @@ Consider the data provided in the spreadsheet "Table_10.1_Renewable_Energy_Produ
 
 ```{r}
 #Importing data set
-energydat <- read.csv("./Data/Table_10.1_Renewable_Energy_Production_and_Consumption_by_Source-Edit.csv", stringsAsFactors = TRUE)
+energydat <- read.csv("./Data/Table_10.1_Renewable_Energy_Production_and_Consumption_by_Source-Edit.csv", 
+                      stringsAsFactors = TRUE)
 ```
 
 
@@ -47,7 +48,8 @@ You will work only with the following columns: Total Biomass Energy Production, 
 
 ```{r}
 energydat_sel <- energydat %>% 
-  select(Month, Total.Biomass.Energy.Production, Total.Renewable.Energy.Production, Hydroelectric.Power.Consumption)
+  select(Month, Total.Biomass.Energy.Production, 
+         Total.Renewable.Energy.Production, Hydroelectric.Power.Consumption)
 
 energydat_sel$Month <- ym(energydat_sel$Month)
 head(energydat_sel)
@@ -58,7 +60,11 @@ head(energydat_sel)
 Transform your data frame in a time series object and specify the starting point and frequency of the time series using the function ts().
 
 ```{r}
-ts_energy <- ts(energydat_sel[2:4], start = first(energydat_sel$Month), frequency = 12)
+ts_energy <- ts(energydat_sel[2:4], 
+                start = c(year(first(energydat_sel$Month)),
+                                              month(first(energydat_sel$Month))), 
+                frequency = 12)
+head(ts_energy)
 ```
 
 
@@ -94,6 +100,7 @@ cor.test(ts_energy[,1],ts_energy[,3])
 cor.test(ts_energy[,2],ts_energy[,3])
 ```
 
+All of the time series are significantly correlated to each other with p values <0.05.
 
 ## Question 6
 Compute the autocorrelation function from lag 1 up to lag 40 for these three variables. What can you say about these plots? Do the three of them have the same behavior?
@@ -109,7 +116,7 @@ acf(ts_energy[,2], lag.max =40)
 acf(ts_energy[,3], lag.max =1)
 acf(ts_energy[,3], lag.max =40)
 ```
-
+The most information can be grained from the acf with a lag of 40. Total biomass energy production and total renewable energy production have very similar behavior and they are significantly autocorreleated up to 40 legs. Hydroelectric power is different in that the coorelation appears more cyclical in signifcance. 
 
 ## Question 7
 Compute the partial autocorrelation function from lag 1 to lag 40 for these three variables. How these plots differ from the ones in Q6?
@@ -126,4 +133,5 @@ pacf(ts_energy[,3], lag.max =1)
 pacf(ts_energy[,3], lag.max =40)
 ```
 
+The partial auctocorrelation plots are different because they move the influence of intermediate variables giving the direct correlation between Yt and Yt-h. We now see less significant correlation between variables as shown by more lines within the blue line threshold. 
 

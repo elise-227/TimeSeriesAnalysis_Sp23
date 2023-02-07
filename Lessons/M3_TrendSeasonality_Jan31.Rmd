@@ -2,6 +2,8 @@
 title: "M3: Class Exercise on Trend and Season - after class Jan 31"
 author: "Luana Lima"
 output: pdf_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ## Setting R code chunk options
@@ -94,7 +96,7 @@ Note our last observation is from August 2011 but the data file was filled with 
 
 ```{r}
 #Remove last year by replacing current data frame
-inflow_data <- inflow_data[1:(nobs-412,]
+inflow_data <- inflow_data[1:(nobs-12),]
 
 #update object with number of observations
 nobs <- nobs-12
@@ -109,7 +111,10 @@ Fixed!
 Many of the functions we will use require a time series object. You can transform your data in a time series using the function *ts()*. 
 
 ```{r}
+require(lubridate)
 
+ts <- ts(inflow_data[,2:16], start = c(year(first(inflow_data$my_date)),month(first(inflow_data$my_date))), frequency = 12)
+head(ts)
 ```
 
 
@@ -118,9 +123,14 @@ Many of the functions we will use require a time series object. You can transfor
 Let's use functions Acf() and Pacf() from package "forecast".
 
 ```{r acf}
+for(i in 1:nhydro){
+  par(mfrow=c(1,2))
+  acf(ts[,i], lag.max = 40, main = paste0("HP", i))
+  pacf(ts[,i], lag.max = 40, main = paste0("HP", i))
+}
 
-
-
+# acf(ts[,1], lag.max = 40)
+# pacf(ts[,1], lag.max = 40)
 ```
 
 
@@ -131,11 +141,16 @@ Let's identify and remove trend component like we leaned on the recorded videos 
 ```{r}
 #Create vector t
 
-
+t <- 1:nrow(inflow_data)
+# dummy <- seasonaldummy(ts[,4])
 
 #Fit a linear trend to TS of iHP
-
-
+lm <- lm(inflow_data[,5]~t)
+summary(lm)
+ggplot(inflow_data, aes(x = my_date, y = inflow_data[,5]))+
+  geom_line()+
+  geom_smooth(method = "lm")
+#?????
 ```
 
 
