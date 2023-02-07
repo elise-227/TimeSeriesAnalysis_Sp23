@@ -40,17 +40,42 @@ R packages needed for this assignment:"forecast","tseries", and "Kendall". Insta
 ### Q1
 Create a plot window that has one row and three columns. And then for each object on your data frame, fill the plot window with time series plot, ACF and PACF. You may use the some code form A2, but I want all three plots on the same window this time. (Hint: use par() function)
 
+```{r question 1}
+
+```
+
 ### Q2
 From the plot in Q1, do the series Total Biomass Energy Production, Total Renewable Energy Production, Hydroelectric Power Consumption appear to have a trend? If yes, what kind of trend?
 
+```{r question 2}
+
+```
+
+
 ### Q3
 Use the *lm()* function to fit a linear trend to the three time series. Ask R to print the summary of the regression. Interpret the regression output, i.e., slope and intercept. Save the regression coefficients for further analysis.
+
+```{r question 3}
+
+
+```
  
 ### Q4
 Use the regression coefficients from Q3 to detrend the series. Plot the detrended series and compare with the plots from Q1. What happened? Did anything change?
 
+```{r question 4}
+
+
+```
+
+
 ### Q5
 Plot ACF and PACF for the detrended series and compare with the plots from Q1. Did the plots change? How?
+
+```{r question 5}
+
+
+```
 
 ## Seasonal Component
 
@@ -59,10 +84,25 @@ Set aside the detrended series and consider the original series again from Q1 to
 ### Q6
 Do the series seem to have a seasonal trend? Which serie/series? Use function *lm()* to fit a seasonal means model (i.e. using the seasonal dummies) to this/these time series. Ask R to print the summary of the regression. Interpret the regression output. Save the regression coefficients for further analysis.
 
+```{r question 6}
+
+```
+
 ### Q7
 Use the regression coefficients from Q6 to deseason the series. Plot the deseason series and compare with the plots from part Q1. Did anything change?
 
+```{r question 7}
+
+
+```
+
+
 ### Q8
 Plot ACF and PACF for the deseason series and compare with the plots from Q1. Did the plots change? How?
+
+```{r question 8}
+
+
+```
 
 
