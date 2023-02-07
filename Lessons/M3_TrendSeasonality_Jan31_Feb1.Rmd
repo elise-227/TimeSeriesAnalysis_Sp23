@@ -195,6 +195,8 @@ ggplot(inflow_data, aes(x = my_date, y = inflow_data[,iHP+1]))+
   geom_line(color="blue")+
   geom_line(aes(y=inflow_seas_com), color = "red")
   #geom_line(aes(y=detrend), color = "green")
+
+#check back on notes for how to do 
 ```
 
 ##Exercise
@@ -220,9 +222,16 @@ Check for deterministic trend.
 
 #Since I have seasonal data I cannot use the simple MannKendall()
 #another example of functions that need a ts object
+SMtest <- SeasonalMannKendall(ts_inflow_data[,iHP])
+SMtest
 
+#null stationary and no trend
+
+#our data has a trend sig p value 
 
 #Use yearly date to run Mann Kendall
+
+#explosive = phi greater than one , we wil always check for stationarity 
 
 ```
 
