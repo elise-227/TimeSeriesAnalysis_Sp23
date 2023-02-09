@@ -237,6 +237,7 @@ ggplot(energydat, aes(x=Month, y=energydat[,4])) +
             geom_line(aes(y=deseason_energy_hydro), col="green")
 ```
 
+###INTERPRETATION
 
 ### Q8
 Plot ACF and PACF for the deseason series and compare with the plots from Q1. Did the plots change? How?
