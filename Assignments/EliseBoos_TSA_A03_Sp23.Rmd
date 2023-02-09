@@ -62,25 +62,14 @@ ts_energy <- ts(energydat[2:4],
                 start = c(year(first(energydat$Month)),
                                               month(first(energydat$Month))), 
                 frequency = 12)
+
 par(mfrow = c(1, 3))
-
-#Biomass Energy Production plots
-plot(ts_energy[,1]) +
-title(main="Biomass Energy Prod.")
-acf(ts_energy[,1], lag.max =40) 
-pacf(ts_energy[,1], lag.max =40)
-
-#Renewable Energy Production plots
-plot(ts_energy[,2]) +
-title(main="Renewable Energy Prod.") 
-acf(ts_energy[,2], lag.max =40)
-pacf(ts_energy[,2], lag.max =40)
-
-#Hydroelectric Power Consumption plots
-plot(ts_energy[,3]) +
-title(main="Hydroelectric Power Cons.")
-acf(ts_energy[,3], lag.max =40)
-pacf(ts_energy[,3], lag.max =40)
+for (i in 1:3){
+  plot(ts_energy[,i]) +
+  title(main=paste(colnames(ts_energy)[i]))
+  acf(ts_energy[,i], lag.max =40) 
+  pacf(ts_energy[,i], lag.max =40)
+}
 
 ```
 
@@ -159,9 +148,18 @@ ggplot(energydat, aes(x=Month, y=energydat[,4])) +
 Plot ACF and PACF for the detrended series and compare with the plots from Q1. Did the plots change? How?
 
 ```{r question 5}
+par(mfrow = c(1, 2))
+acf(detrend_bio, lag.max =40) 
+pacf(detrend_bio, lag.max =40)
 
+acf(detrend_ren, lag.max =40) 
+pacf(detrend_ren, lag.max =40)
 
+acf(detrend_hydro, lag.max =40) 
+pacf(detrend_hydro, lag.max =40)
 ```
+
+####INTERPRETATION
 
 ## Seasonal Component
 
@@ -171,15 +169,72 @@ Set aside the detrended series and consider the original series again from Q1 to
 Do the series seem to have a seasonal trend? Which serie/series? Use function *lm()* to fit a seasonal means model (i.e. using the seasonal dummies) to this/these time series. Ask R to print the summary of the regression. Interpret the regression output. Save the regression coefficients for further analysis.
 
 ```{r question 6}
+dummies <- seasonaldummy(ts_energy[,1])
 
+#Then fit a linear model to the seasonal dummies
+seas_model_bio=lm(energydat[,2]~dummies)
+summary(seas_model_bio)
+
+seas_model_ren=lm(energydat[,3]~dummies)
+summary(seas_model_ren)
+
+seas_model_hydro=lm(energydat[,4]~dummies)
+summary(seas_model_hydro)
+
+#Look at the regression coefficient. These will be the values of Beta
+
+#Store regression coefficients
+beta_int_bio=seas_model_bio$coefficients[1]
+beta_coeff_bio=seas_model_bio$coefficients[2:12]
+
+beta_int_ren=seas_model_ren$coefficients[1]
+beta_coeff_ren=seas_model_ren$coefficients[2:12]
+
+beta_int_hydro=seas_model_hydro$coefficients[1]
+beta_coeff_hydro=seas_model_hydro$coefficients[2:12]
 ```
+
+####INTERPRETATION
 
 ### Q7
 Use the regression coefficients from Q6 to deseason the series. Plot the deseason series and compare with the plots from part Q1. Did anything change?
 
 ```{r question 7}
+energy_seas_comp_bio=array(0,nrow(energydat))
+for(i in 1:nobs){
+  energy_seas_comp_bio[i]=(beta_int_bio+beta_coeff_bio%*%dummies[i,])
+}
 
+deseason_energy_bio <- energydat[,2]-energy_seas_comp_bio
 
+ggplot(energydat, aes(x=Month, y=energydat[,2])) +
+            geom_line(color="blue") +
+            ylab(colnames(energydat)[(2)]) +
+            geom_line(aes(y=deseason_energy_bio), col="green")
+
+energy_seas_comp_ren=array(0,nrow(energydat))
+for(i in 1:nobs){
+  energy_seas_comp_ren[i]=(beta_int_ren+beta_coeff_ren%*%dummies[i,])
+}
+
+deseason_energy_ren <- energydat[,3]-energy_seas_comp_ren
+
+ggplot(energydat, aes(x=Month, y=energydat[,3])) +
+            geom_line(color="blue") +
+            ylab(colnames(energydat)[(3)]) +
+            geom_line(aes(y=deseason_energy_ren), col="green")
+
+energy_seas_comp_hydro=array(0,nrow(energydat))
+for(i in 1:nobs){
+  energy_seas_comp_hydro[i]=(beta_int_hydro+beta_coeff_hydro%*%dummies[i,])
+}
+
+deseason_energy_hydro <- energydat[,4]-energy_seas_comp_hydro
+
+ggplot(energydat, aes(x=Month, y=energydat[,4])) +
+            geom_line(color="blue") +
+            ylab(colnames(energydat)[(4)]) +
+            geom_line(aes(y=deseason_energy_hydro), col="green")
 ```
 
 
@@ -187,7 +242,15 @@ Use the regression coefficients from Q6 to deseason the series. Plot the deseaso
 Plot ACF and PACF for the deseason series and compare with the plots from Q1. Did the plots change? How?
 
 ```{r question 8}
+par(mfrow = c(1, 2))
+acf(deseason_energy_bio, lag.max =40) 
+pacf(deseason_energy_bio, lag.max =40)
 
+acf(deseason_energy_ren, lag.max =40) 
+pacf(deseason_energy_ren, lag.max =40)
+
+acf(deseason_energy_hydro, lag.max =40) 
+pacf(deseason_energy_hydro, lag.max =40)
 
 ```
 
