@@ -48,7 +48,7 @@ energydat <- energydat %>%
          Total.Renewable.Energy.Production, Hydroelectric.Power.Consumption)
 #set to date object 
 energydat$Month <- ym(energydat$Month)
-head(energydat_sel)
+head(energydat)
 ```
 
 ##Trend Component
