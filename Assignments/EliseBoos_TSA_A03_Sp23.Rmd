@@ -5,7 +5,7 @@ author: "Elise Boos"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
   
 ## Directions
@@ -63,6 +63,7 @@ ts_energy <- ts(energydat[2:4],
                                               month(first(energydat$Month))), 
                 frequency = 12)
 
+#make plots
 par(mfrow = c(1, 3))
 for (i in 1:3){
   plot(ts_energy[,i]) +
@@ -92,14 +93,20 @@ summary(linear_trend_bio)
 #save coefficients
 beta0_bio=as.numeric(linear_trend_bio$coefficients[1])  #intercept 
 beta1_bio=as.numeric(linear_trend_bio$coefficients[2])  #slope
+```
+For biomass the slope is 4.800e-01 (large positive, upward trend) and intercept is 1.337e+02 and both are statistically significant with p values <2e-16.
 
+```{r quest 3 cont}
 #trend on renewable
 linear_trend_ren <- lm(energydat[,3]~t)  
 summary(linear_trend_ren)
 #save coefficients
 beta0_ren=as.numeric(linear_trend_ren$coefficients[1])  #intercept 
 beta1_ren=as.numeric(linear_trend_ren$coefficients[2])  #slope
+```
+For renewable the slope is 0.9362 (positive, upward trend) and intercept is 312.2475 and both are statistically significant with p values <2e-16.
 
+```{r quest 3 cont 2}
 #trend on hydro
 linear_trend_hydro<- lm(energydat[,4]~t)  
 summary(linear_trend_hydro)
@@ -108,17 +115,19 @@ beta0_hydro=as.numeric(linear_trend_hydro$coefficients[1])  #intercept
 beta1_hydro=as.numeric(linear_trend_hydro$coefficients[2])  #slope
 
 ```
- 
-####INTERPRETAITON  
- 
+For hydropower the slope is -0.082888 (negative, downward trend) and significant with a p value of 4.94e-16 and intercept is 259.898013 and statistically significant with a p value <2e-16.
+
+
 ### Q4
 Use the regression coefficients from Q3 to detrend the series. Plot the detrended series and compare with the plots from Q1. What happened? Did anything change?
 
 ```{r question 4}
+#detrended series subtracting coeffiecents 
 detrend_bio <- energydat[,2]-(beta0_bio+beta1_bio*t)
 detrend_ren <- energydat[,3]-(beta0_ren+beta1_ren*t)
 detrend_hydro <- energydat[,4]-(beta0_hydro+beta1_hydro*t)
 
+#plots
 ggplot(energydat, aes(x=Month, y=energydat[,2])) +
             geom_line(color="blue") +
             ylab(paste(colnames(energydat)[2])) +
@@ -142,12 +151,13 @@ ggplot(energydat, aes(x=Month, y=energydat[,4])) +
 
 ```
 
-###INTERPRETATION
+All plots now oscillated around 0 with no linear trend. The renewable and biomass plots have the biggest change as there linear trend were larger while hydropower remains mostly the same, possibly because it is more influenced seasonally/ 
 
 ### Q5
 Plot ACF and PACF for the detrended series and compare with the plots from Q1. Did the plots change? How?
 
 ```{r question 5}
+#acf and pacf
 par(mfrow = c(1, 2))
 acf(detrend_bio, lag.max =40) 
 pacf(detrend_bio, lag.max =40)
@@ -158,8 +168,7 @@ pacf(detrend_ren, lag.max =40)
 acf(detrend_hydro, lag.max =40) 
 pacf(detrend_hydro, lag.max =40)
 ```
-
-####INTERPRETATION
+The plots look pretty similar to the initial plots, not much seems to have changed.
 
 ## Seasonal Component
 
@@ -169,20 +178,29 @@ Set aside the detrended series and consider the original series again from Q1 to
 Do the series seem to have a seasonal trend? Which serie/series? Use function *lm()* to fit a seasonal means model (i.e. using the seasonal dummies) to this/these time series. Ask R to print the summary of the regression. Interpret the regression output. Save the regression coefficients for further analysis.
 
 ```{r question 6}
+#dummies 
 dummies <- seasonaldummy(ts_energy[,1])
 
 #Then fit a linear model to the seasonal dummies
 seas_model_bio=lm(energydat[,2]~dummies)
 summary(seas_model_bio)
+```
+Biomass has a significant intercept (p <2e-16), but no significant coefficients for the months. This series does not have a significant seasonal component.
 
+```{r q6 cont}
 seas_model_ren=lm(energydat[,3]~dummies)
 summary(seas_model_ren)
+```
 
+Renewables has a significant intercept (p <2e-16), but no significant coefficients for the months. This series does not have a significant seasonal component.
+
+```{r q6 cont 2}
 seas_model_hydro=lm(energydat[,4]~dummies)
 summary(seas_model_hydro)
+```
+Hydropower has a significant intercept (p <2e-16) and several significant coefficients for the months (p < 0.05). This series does have a significant seasonal component.
 
-#Look at the regression coefficient. These will be the values of Beta
-
+```{r q6 cont 3}
 #Store regression coefficients
 beta_int_bio=seas_model_bio$coefficients[1]
 beta_coeff_bio=seas_model_bio$coefficients[2:12]
@@ -194,12 +212,12 @@ beta_int_hydro=seas_model_hydro$coefficients[1]
 beta_coeff_hydro=seas_model_hydro$coefficients[2:12]
 ```
 
-####INTERPRETATION
 
 ### Q7
 Use the regression coefficients from Q6 to deseason the series. Plot the deseason series and compare with the plots from part Q1. Did anything change?
 
 ```{r question 7}
+#deseason biomass
 energy_seas_comp_bio=array(0,nrow(energydat))
 for(i in 1:nobs){
   energy_seas_comp_bio[i]=(beta_int_bio+beta_coeff_bio%*%dummies[i,])
@@ -207,11 +225,13 @@ for(i in 1:nobs){
 
 deseason_energy_bio <- energydat[,2]-energy_seas_comp_bio
 
+#plot
 ggplot(energydat, aes(x=Month, y=energydat[,2])) +
             geom_line(color="blue") +
             ylab(colnames(energydat)[(2)]) +
             geom_line(aes(y=deseason_energy_bio), col="green")
 
+#deseason renwable
 energy_seas_comp_ren=array(0,nrow(energydat))
 for(i in 1:nobs){
   energy_seas_comp_ren[i]=(beta_int_ren+beta_coeff_ren%*%dummies[i,])
@@ -219,11 +239,13 @@ for(i in 1:nobs){
 
 deseason_energy_ren <- energydat[,3]-energy_seas_comp_ren
 
+#plot
 ggplot(energydat, aes(x=Month, y=energydat[,3])) +
             geom_line(color="blue") +
             ylab(colnames(energydat)[(3)]) +
             geom_line(aes(y=deseason_energy_ren), col="green")
 
+#deseason hydro
 energy_seas_comp_hydro=array(0,nrow(energydat))
 for(i in 1:nobs){
   energy_seas_comp_hydro[i]=(beta_int_hydro+beta_coeff_hydro%*%dummies[i,])
@@ -231,13 +253,14 @@ for(i in 1:nobs){
 
 deseason_energy_hydro <- energydat[,4]-energy_seas_comp_hydro
 
+#plot
 ggplot(energydat, aes(x=Month, y=energydat[,4])) +
             geom_line(color="blue") +
             ylab(colnames(energydat)[(4)]) +
             geom_line(aes(y=deseason_energy_hydro), col="green")
 ```
 
-###INTERPRETATION
+Since hydropower was the only series with a signifcant seasonal component it changed the most from deseasoning the series. It now has less exaggerated fluctuations and more tightly oscilates around 0. 
 
 ### Q8
 Plot ACF and PACF for the deseason series and compare with the plots from Q1. Did the plots change? How?
@@ -255,4 +278,4 @@ pacf(deseason_energy_hydro, lag.max =40)
 
 ```
 
-
+The hydropower plots changed the most with the cyclical fluctuations now removed with the seasonal component taken out. All the series have a more gardual decline in signifcance with no cyclical pattern. 
