@@ -126,6 +126,7 @@ head(all)
 tail(all)
 
 #center moving average so missing six observations, loose six on the trend 
+#stl the smaller the bar the most representative 
 
 # Discuss the results
 
