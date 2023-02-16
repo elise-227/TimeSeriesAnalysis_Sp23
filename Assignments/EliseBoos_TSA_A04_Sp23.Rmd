@@ -27,6 +27,8 @@ require(ggplot2)
 require(forecast)
 require(tseries)
 require(Kendall)
+require(tidyverse)
+require(lubridate)
 
 ```
 
@@ -37,8 +39,10 @@ Consider the same data you used for A3 from the spreadsheet "Table_10.1_Renewabl
 
 ```{r}
 #Importing data set - using xlsx package
-
-
+renewable <- read.csv("./Data/Table_10.1_Renewable_Energy_Production_and_Consumption_by_Source-Edit.csv", 
+                      stringsAsFactors = TRUE)
+renewable <- renewable %>% select(Month, Total.Renewable.Energy.Production)
+renewable$Month <- ym(renewable$Month)
 ```
 
 
@@ -54,8 +58,10 @@ Difference the "Total Renewable Energy Production" series using function diff().
 Try differencing at lag 1 only once, i.e., make `lag=1` and `differences=1`. Plot the differenced series Do the series still seem to have trend?
 
 ```{r}
-
+diff <- diff(renewable$Total.Renewable.Energy.Production, lag = 1, differences = 1)
+plot(diff, type = "l")
 ```
+The series appears to have a slight trend upwards but nothing dramatic.
 
 ### Q2
 
@@ -64,7 +70,19 @@ Now let's compare the differenced series with the detrended series you calculate
 Copy and paste part of your code for A3 where you compute regression for Total Energy Production and the detrended Total Energy Production
 
 ```{r}
+nobs <- nrow(renewable)
+t <- c(1:nobs) 
 
+#trend on biomass
+linear_trend <- lm(renewable[,2]~t)  
+summary(linear_trend)
+#save coefficients
+beta0=as.numeric(linear_trend$coefficients[1])  #intercept 
+beta1=as.numeric(linear_trend$coefficients[2])  #slope
+
+detrend <- renewable[,2]-(beta0+beta1)
+
+plot(detrend, type = "l")
 ```
 
 ### Q3
