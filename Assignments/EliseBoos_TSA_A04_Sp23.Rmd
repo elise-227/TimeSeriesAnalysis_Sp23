@@ -29,6 +29,7 @@ require(tseries)
 require(Kendall)
 require(tidyverse)
 require(lubridate)
+library(dplyr)
 
 ```
 
@@ -80,7 +81,7 @@ summary(linear_trend)
 beta0=as.numeric(linear_trend$coefficients[1])  #intercept 
 beta1=as.numeric(linear_trend$coefficients[2])  #slope
 
-detrend <- renewable[,2]-(beta0+beta1)
+detrend <- renewable[,2]-(beta0+beta1*t)
 
 plot(detrend, type = "l")
 ```
@@ -90,8 +91,10 @@ Create a data frame with 4 columns: month, original series, detrended by Regress
 
 ```{r}
 #Data frame - remember to not include January 1973
+detrend <- detrend[-1]
+renewable_df <- renewable[-1,]
 
-
+combined <- cbind(renewable_df, detrend, diff)
 ```
 
 ### Q4
@@ -99,7 +102,16 @@ Using ggplot() create a line plot that shows the three series together. Make sur
 
 ```{r}
 #Use ggplot
-
+ggplot(combined, aes(x = Month))+
+  geom_line(aes(y = Total.Renewable.Energy.Production, color = "Original"))+
+  geom_line(aes(y = detrend, color = "Detrended"))+
+  geom_line(aes(y = diff, color = "Differenced"))+
+  labs(x = "Month",
+         y = "Tillion Btu") +
+  scale_color_manual(name='Model',
+                     breaks=c('Original', 'Detrended', 'Differenced'),
+                     values=c('Original'='lightblue', 'Detrended'='purple', 
+                              'Differenced'='pink'))
 ```
 
 
@@ -108,23 +120,43 @@ Plot the ACF for the three series and compare the plots. Add the argument `ylim=
 
 ```{r}
 #Compare ACFs
-
+par(mfrow = c(1,3))
+acf(combined[,2], lag.max = 40, ylim=c(-0.5,1))
+acf(combined[,3], lag.max = 40, ylim=c(-0.5,1))
+acf(combined[,4], lag.max = 40, ylim=c(-0.5,1))
 ```
 
+Differencing was the most efficient at eliminating the trend show by the no longer trending downward correlation and less significant correlation overtime.
 
 ### Q6
 Compute the Seasonal Mann-Kendall and ADF Test for the original "Total Renewable Energy Production" series. Ask R to print the results. Interpret the results for both test. Whats the conclusion from the Seasonal Mann Kendall test? What's the conclusion for the ADF test? Do they match what you observed in Q2? Recall that having a unit root means the series has a stochastic trend. And when a series has stochastic trend we need to use a different procedure to remove the trend.
 
 ```{r}
+#create time series 
+timeseries <- ts(renewable[,2],frequency=12,start=c(1973,1))
 
+#seasonal Mann Kendall
+SMtest <- SeasonalMannKendall(timeseries)
+print(summary(SMtest))
+
+#ADF test 
+ADFtest <- adf.test(timeseries, alternative = "stationary")
+ADFtest
 ```
+
+From the seasonal mann kendall a significant p value (p =< 2.22e-16) is returned indicating the data has a significant monotonic trend (tau = 0.739). This is further corroborated by the ADF test which has a non significant p-value (p = 0.9056) indicating the series is not stationary. 
 
 ### Q7
 
 Aggregate the original "Total Renewable Energy Production" series by year. You can use the same procedure we used in class. Store series in a matrix where rows represent months and columns represent years. And then take the columns mean using function colMeans(). Recall the goal is the remove the seasonal variation from the series to check for trend. 
 
 ```{r}
+#aggregate by year 
+matrix <- matrix(renewable[,2],byrow=FALSE,nrow=12)
+renewable_yearly <- colMeans(matrix)
 
+#create list of years 
+my_year <- c(year(first(renewable$Month)):year(last(renewable$Month)))
 ```
 
 ### Q8
@@ -132,6 +164,16 @@ Aggregate the original "Total Renewable Energy Production" series by year. You c
 Apply the Mann Kendal, Spearman correlation rank test and ADF. Are the results from the test in agreement with the test results for the non-aggregated series, i.e., results for Q6?
 
 ```{r}
+#Mann Kendal
+print(summary(MannKendall(renewable_yearly)))
 
+#spearman
+sp_rho=cor.test(renewable_yearly,my_year,method="spearman")
+print(sp_rho)
+
+#ADF test
+ADFtest <- adf.test(renewable_yearly, alternative = "stationary")
+ADFtest
 ```
 
+The mann kendall has a significant p value still (p =<2.22e-16), so even with the seasonal component controlled for there is still a significant monotonic trend (tau = 0.739). The spearman test shows a correlation much greater than zero indicating a trend. Finally, the ADF test also shows a non-significant p-value (p = 0.7247) meaning we do not reject the null hypothesis that there is a monotonic trend. 
