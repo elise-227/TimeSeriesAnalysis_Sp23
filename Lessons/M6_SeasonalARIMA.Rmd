@@ -155,6 +155,7 @@ ns_diff <- nsdiffs(ts_electricity_price[,"Residential"])
 cat("Number of seasonal differencing needed: ",ns_diff)
 
 #Lets difference the series once at lag 12 to remove the seasonal trend.
+#LAG TWELVE
 residential_price_seas_diff <- diff(ts_electricity_price[,"Residential"],lag=12, differences=1)
 residential_price_trend_diff <- diff(ts_electricity_price[,"Residential"],lag =1, differences=1) #diff done on orig series
 residential_price_both_diff <- diff(residential_price_trend_diff,lag =12, differences=1)
@@ -217,7 +218,8 @@ ts.plot(SARIMA_autofit$residuals)
 Acf(SARIMA_autofit$residuals,lag.max=40)
 Pacf(SARIMA_autofit$residuals,lag.max=40)
 
-
+#tests all possible combinations 
+#ARIMA fit 
 ```
 
 
