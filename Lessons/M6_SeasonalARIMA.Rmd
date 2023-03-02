@@ -224,7 +224,7 @@ Pacf(SARIMA_autofit$residuals,lag.max=40)
 
 
 ## Automatically fitting ARIMA to deseasonal series
-
+NO SEASONALITY INCORPORATED 
 Recall from M6 that the best fit for the non-seasonal time series is a ARIMA(2,1,2) with drift.
 
 ```{r}
@@ -241,4 +241,8 @@ Pacf(ARIMA_autofit$residuals,lag.max=40)
 ```
 
 ## Discussion: Which one to do? ARIMA or SARIMA?
+not comparable - not considering errors from seasonal component 
+have to add seasonal back in and compare 
+
+NOT COMPARABLE 
 
