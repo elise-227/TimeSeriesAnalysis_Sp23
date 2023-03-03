@@ -26,7 +26,12 @@ Packages needed for this assignment: "forecast","tseries". Do not forget to load
 
 ```{r}
 #Load/install required package here
-
+library(forecast)
+library(tseries)
+library(lubridate)
+library(readxl)
+library(ggplot2)
+library(tseries)
 ```
 
 
@@ -36,11 +41,11 @@ Describe the important characteristics of the sample autocorrelation function (A
 
 * AR(2)
 
-> Answer: 
+> Answer: For an Autoregressive model the ACF will decay exponentially with time and since this is a second order AR model the pacf will identify that its second order because it will have two signifcant lag spikes on the PACF at the beginning.  
 
 * MA(1)
 
-> Answer: 
+> Answer: For a moving average model the PACF will decay exponentially and the ACF will identify the order, in this case as a first order moving average model if the first spike is at 1 that is order zero and there will be one additional spike indicating a order of 1. 
 
 
 
