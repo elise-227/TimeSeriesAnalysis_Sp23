@@ -34,8 +34,7 @@ library(lubridate)
 library(readxl)
 library(ggplot2)
 library(tseries)
-
-#install.packages("sarima")
+library(sarima)
 ```
 
 
@@ -99,9 +98,21 @@ Pacf(ARMAmodel_3, lag = 40,main = "ACF ARMA(1,1)")
 (e) Increase number of observations to $n=1000$ and repeat parts (a)-(d).
 
 ```{r q2e}
-library(sarima)
+ARMAmodel_1 <- arima.sim(model=list(ar=0.6), n=1000) # ar coefficient is 0.6
 
-SARIMAmodel_4 <- sim_sarima(model=list(ma=0.5,sar=0.8,nseasons=12), n=1000)
+ARMAmodel_2 <- arima.sim(model=list(ma=0.9), n=1000) # ma coefficient is 0.9
+
+ARMAmodel_3 <- arima.sim(model=list(ar=0.6, ma=0.9), n=1000)
+
+par(mfrow=c(1,3))
+Acf(ARMAmodel_1, lag = 40,main = "ACF ARMA(1,0)")
+Acf(ARMAmodel_2, lag = 40,main = "ACF ARMA(0,1)")
+Acf(ARMAmodel_3, lag = 40,main = "ACF ARMA(1,1)")
+
+par(mfrow=c(1,3))
+Pacf(ARMAmodel_1, lag = 40,main = "ACF ARMA(1,0)")
+Pacf(ARMAmodel_2, lag = 40,main = "ACF ARMA(0,1)")
+Pacf(ARMAmodel_3, lag = 40,main = "ACF ARMA(1,1)")
 ```
 
 
@@ -125,7 +136,9 @@ identify the integers in the model
 Plot the ACF and PACF of a seasonal ARIMA$(0, 1)\times(1, 0)_{12}$ model with $\phi =0 .8$ and $\theta = 0.5$ using R. The $12$ after the bracket tells you that $s=12$, i.e., the seasonal lag is 12, suggesting monthly data whose behavior is repeated every 12 months. You can generate as many observations as you like. Note the Integrated part was omitted. It means the series do not need differencing, therefore $d=D=0$. Plot ACF and PACF for the simulated data. Comment if the plots are well representing the model you simulated, i.e., would you be able to identify the order of both non-seasonal and seasonal components from the plots? Explain.
 
 ```{r q4}
-
-
+par(mfrow=c(1,2))
+SARIMAmodel_4 <- sim_sarima(model=list(ma=0.5,sar=0.8,nseasons=12), n=1000)
+Acf(SARIMAmodel_4, lag =40)
+Pacf(SARIMAmodel_4, lag =40)
 ```
 
