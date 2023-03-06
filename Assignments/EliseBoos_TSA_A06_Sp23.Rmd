@@ -88,7 +88,7 @@ Pacf(ARMAmodel_3, lag = 40,main = "ACF ARMA(1,1)")
 
 (c) Look at the ACFs and PACFs. Imagine you had these plots for a data set and you were asked to identify the model, i.e., is it AR, MA or ARMA and the order of each component. Would you be identify them correctly? Explain your answer.
 
-> Answer:
+> Answer: For ARMA(1,0) you can see that its an AR because the ACF shows a gradual decay and the PACF only has one significant spike indicating it is a 1 st order. Only one significant spike in the pacf with no gradual decay indicates its not an MA so that order is 0. 
 
 (d) Compare the ACF and PACF values R computed with the theoretical values you provided for the coefficients. Do they match? Explain your answer.
 
