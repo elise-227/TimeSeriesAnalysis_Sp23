@@ -24,6 +24,7 @@ require(forecast)
 require(tseries)
 require(tidyverse)
 require(lubridate)
+require(Kendall)
 ```
 
 ## Importing and processing the data set
@@ -62,7 +63,16 @@ Pacf(ts_netgen, lag.max =40)
 Using the $decompose()$ or $stl()$ and the $seasadj()$ functions create a series without the seasonal component, i.e., a deseasonalized natural gas series. Plot the deseasonalized series over time and corresponding ACF and PACF. Compare with the plots obtained in Q1.
 
 ```{r}
+decompose_netgen <- decompose(ts_netgen,"additive")
+plot(decompose_netgen)
 
+deseasonal_netgen <- seasadj(decompose_netgen)  
+
+par(mfrow = c(1, 3))
+plot(deseasonal_netgen) +
+title(main="Deseasoned Series")
+Acf(deseasonal_netgen, lag.max =40) 
+Pacf(deseasonal_netgen, lag.max =40)
 ```
 
 ## Modeling the seasonally adjusted or deseasonalized series
@@ -72,7 +82,10 @@ Using the $decompose()$ or $stl()$ and the $seasadj()$ functions create a series
 Run the ADF test and Mann Kendall test on the deseasonalized data from Q2. Report and explain the results.
 
 ```{r}
+ADFtest <- adf.test(deseasonal_netgen, alternative = "stationary")
+ADFtest
 
+print(summary(MannKendall(deseasonal_netgen)))
 ```
 
 ### Q4
