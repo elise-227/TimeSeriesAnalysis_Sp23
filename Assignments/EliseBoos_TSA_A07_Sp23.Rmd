@@ -24,12 +24,6 @@ require(forecast)
 require(tseries)
 require(tidyverse)
 require(lubridate)
-
-netgen <- read.csv("./Data/Net_generation_United_States_all_sectors_monthly.csv",skip=4)
-
-netgen <- netgen %>% select(Month, natural.gas.thousand.megawatthours)
-
-netgen$Month <- my(netgen$Month)
 ```
 
 ## Importing and processing the data set
@@ -43,7 +37,18 @@ Packages needed for this assignment: "forecast","tseries". Do not forget to load
 Import the csv file and create a time series object for natural gas. Make you sure you specify the **start=** and **frequency=** arguments. Plot the time series over time, ACF and PACF.
 
 ```{r}
+netgen <- read.csv("./Data/Net_generation_United_States_all_sectors_monthly.csv",skip=4)
 
+netgen <- netgen %>% select(Month, natural.gas.thousand.megawatthours)
+
+netgen$Month <- my(netgen$Month)
+
+netgen<- netgen[order(netgen$Month),]
+
+start <- c(month(first(netgen$Month)),year(first(netgen$Month)))
+end <- c(month(last(netgen$Month)),year(last(netgen$Month)))
+
+ts_netgen <- ts(netgen[,2], start=start, end=end, frequency = 12)
 ```
 
 ### Q2
