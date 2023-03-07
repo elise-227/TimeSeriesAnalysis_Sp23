@@ -49,6 +49,12 @@ start <- c(month(first(netgen$Month)),year(first(netgen$Month)))
 end <- c(month(last(netgen$Month)),year(last(netgen$Month)))
 
 ts_netgen <- ts(netgen[,2], start=start, end=end, frequency = 12)
+
+par(mfrow = c(1, 3))
+plot(ts_netgen) +
+title(main="Time Series")
+Acf(ts_netgen, lag.max =40) 
+Pacf(ts_netgen, lag.max =40)
 ```
 
 ### Q2
