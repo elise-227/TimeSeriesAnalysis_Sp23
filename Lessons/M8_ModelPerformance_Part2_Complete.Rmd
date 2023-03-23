@@ -1,6 +1,7 @@
 ---
 title: "M8: Forecast Accuracy & Model Performance - Exercise"
 author: "Luana Lima"
+date: "03/24/2021"
 output: pdf_document
 always_allow_html: true
 editor_options: 
@@ -61,22 +62,24 @@ forecast=c(110,121,112,120,109)
 n=length(actual)
 
 ME = sum(actual - forecast)/n
-MSE = sum(actual - forecast)^2/n
+MSE = sum((actual - forecast)^2)/n
 RMSE = sqrt(MSE)
-MAE = sum(abs(actual-forecast))/n
-MPE = sum((actual-forecast)/actual)/(n*100)
-MAPE =sum((abs(actual-forecast))/actual)/(n*100)
+MAE = sum(abs(actual - forecast))/n
+MPE = sum((actual - forecast)/actual)/n*100
+MAPE = sum(abs(actual - forecast)/actual)/n*100
 
-manual_scores <- as.data.frame(cbind(ME,RMSE,MAE,MPE,MAPE))
+manual_scores <- data.frame(ME,MSE,RMSE,MAE,MPE,MAPE)
+manual_scores
 
 #Exercise 2: Compute the forecast accuracy metrics you calculated in Ex 1 with the results from accuracy() function.
-
+auto_scores <- as.data.frame(accuracy(forecast,actual))
+auto_scores
 
 ```
 
 ## Importing data
 
-Today we will work with data from the Climate Change Knowledge Portal from the World Bank Group. More specifically historical rainfall and temperature averages for Brazil. You will find two new data files on folder "/Data/Raw/". One with rainfall named "pr_1901_2016_BRA.csv" and another with temperature named "tas_1901_2016_BRA.csv". The data span the period from 1901 to 2016 in monthly steps. You can download the data [here][<https://climateknowledgeportal.worldbank.org/download-data>]
+Today we continue working with data from the Climate Change Knowledge Portal from the World Bank Group. More specifically historical rainfall and temperature averages for Brazil. You will find two new data files on folder "/Data/Raw/". One with rainfall named "pr_1901_2016_BRA.csv" and another with temperature named "tas_1901_2016_BRA.csv". The data span the period from 1901 to 2016 in monthly steps. You can download the data [here][<https://climateknowledgeportal.worldbank.org/download-data>]
 
 Research question: Can you forecast temperature for the next two months?
 
@@ -143,9 +146,19 @@ BR_Temp_ts_deseas <- seasadj(BR_Temp_Decomposed)
 Which models could be used to forecast the non-seasonal temperature series? When fitting a model it's important to do the backward-looking assessment. Check residuals to see if your model is well representing the historical data.
 
 ```{r}
-#Exercise 3: Try fitting different model to the deseasonal series. Check the residuals using the checkresiduals() function.
+#Exercise 3: Try fitting different model to the deseasonal series. Check teh residuals using the checkresiduals() function.
 
+# Model 1: Naive on deseas data
+NAIVE_deseas <- naive(BR_Temp_ts_deseas, h=12)
+checkresiduals(NAIVE_deseas)
 
+# Model 2:  ARIMA on deseasonal data
+ARIMA_autofit <- auto.arima(BR_Temp_ts_deseas, max.D = 0, max.P = 0, max.Q = 0)
+checkresiduals(ARIMA_autofit)
+
+# Model 3:  Simple exponential smoothing on deseasonal data
+SES_deseas=ses(y = BR_Temp_ts_deseas, h = 12, holdout = FALSE, silent = FALSE)  #alpha is NULL
+checkresiduals(SES_deseas)
 
 ```
 
@@ -157,7 +170,19 @@ In the lesson we used function `accuracy()` to calculate performance measures li
 
 #Exercise 4: Apply function accuracy() to the forecasts generated with each model you fit for the non-seasonal data on Ex 3. 
 
+#Model 1: Arithmetic mean
+NAIVE_scores <- accuracy(NAIVE_deseas)  #store the performance metrics
+plot(NAIVE_deseas)  #plot forecasts
 
+# Model 2:  ARIMA 
+#remember auto.arima does not call the forecast() internally so we need one more step
+ARIMA_forecast <- forecast(object = ARIMA_autofit, h = 12)
+ARIMA_scores <- accuracy(ARIMA_forecast)
+plot(ARIMA_forecast)
+
+# Model 3:  Simple exponential smoothing on deseasonal data
+SES_scores <- accuracy(SES_deseas)  #store the performance metrics
+plot(SES_deseas)  #
 
 ```
 
@@ -165,10 +190,12 @@ A better visualization of the results from `accuracy()` can be obtained by creat
 
 ```{r}
 # Exercise 5: create data frame that combines metrics for all the models you created on Ex 3.
-
+deseas_scores <- as.data.frame(rbind(NAIVE_scores, ARIMA_scores, SES_scores))
+row.names(deseas_scores) <- c("NAIVE", "ARIMA","SES")
 
 # Exercise 6: Decide which model is the best fit by comparing the RMSE metric, i.e, choose model with lowest RMSE
-                    
+best_model_index <- which.min(deseas_scores[,"RMSE"])
+cat("The best model by RMSE is:", row.names(deseas_scores[best_model_index,]))                       
                             
 ```
 
@@ -177,4 +204,10 @@ A better visualization of the results from `accuracy()` can be obtained by creat
 ```{r}
 # Exercise 7: Generate a comparison table for your report using the kbl() function. 
 
+kbl(deseas_scores, 
+      caption = "Forecast Accuracy for Non-seasonal Temperature Data",
+      digits = array(5,ncol(deseas_scores))) %>%
+  kable_styling(full_width = FALSE, position = "center") %>%
+  #highlight model with lowest RMSE
+  kable_styling(latex_options="striped", stripe_index = which.min(seas_scores[,"RMSE"]))
 ```

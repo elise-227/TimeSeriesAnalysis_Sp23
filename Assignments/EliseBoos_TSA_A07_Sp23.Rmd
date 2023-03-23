@@ -4,6 +4,8 @@ subtitle: "Assignment 7 - Due date 03/20/23"
 author: "Elise Boos"
 output: pdf_document
 geometry: margin=2.54cm
+editor_options: 
+  chunk_output_type: console
 ---
 
 ## Directions
@@ -93,20 +95,28 @@ print(summary(MannKendall(deseasonal_netgen)))
 Using the plots from Q2 and test results from Q3 identify the ARIMA model parameters $p,d$ and $q$. Note that in this case because you removed the seasonal component prior to identifying the model you don't need to worry about seasonal component. Clearly state your criteria and any additional function in R you might use. DO NOT use the $auto.arima()$ function. You will be evaluated on ability to can read the plots and interpret the test results.
 
 ```{r}
-
+ndiffs(deseasonal_netgen, max.d = 2)
 ```
+My prediction for the model parameters based on the prior results are ARIMA(1,1,0) because the slow decay of the ACF indicates the it is an autoregressive model and the PACF has one significant spike so p is 1 and q is 0. ndiffs showed one differencing so d is 1. 
+
 
 ### Q5
 
 Use $Arima()$ from package "forecast" to fit an ARIMA model to your series considering the order estimated in Q4. You should allow constants in the model, i.e., $include.mean = TRUE$ or $include.drift=TRUE$. **Print the coefficients** in your report. Hint: use the $cat()$ function to print.
 
 ```{r}
-
+arima <- arima(deseasonal_netgen,order=c(1,1,0),include.mean=TRUE)
+arima
 ```
 
 ### Q6
 
 Now plot the residuals of the ARIMA fit from Q5 along with residuals ACF and PACF on the same window. You may use the $checkresiduals()$ function to automatically generate the three plots. Do the residual series look like a white noise series? Why?
+
+```{r ques 6}
+checkresiduals(arima)
+```
+Yes it looks like a white noise series because all the trends are removed. 
 
 ## Modeling the original series (with seasonality)
 
@@ -115,18 +125,27 @@ Now plot the residuals of the ARIMA fit from Q5 along with residuals ACF and PAC
 Repeat Q4-Q6 for the original series (the complete series that has the seasonal component). Note that when you model the seasonal series, you need to specify the seasonal part of the ARIMA model as well, i.e., $P$, $D$ and $Q$.
 
 ```{r}
+par(mfrow = c(1, 3))
+plot(ts_netgen) +
+title(main="Deseasoned Series")
+Acf(ts_netgen, lag.max =40) 
+Pacf(ts_netgen, lag.max =40)
 
+nsdiffs(ts_netgen, max.D = 1)
+
+sarima <- arima(ts_netgen,order=c(1,1,0),seasonal =c(1,1,0), include.mean=TRUE)
+sarima
 ```
-
+ACF is decaying after 12 lags and PACF has a significant spike at 12 lags so P is 1 and Q is 0. nsdiffs indicates D is 1.
 
 ### Q8
 
 Compare the residual series for Q7 and Q6. Can you tell which ARIMA model is better representing the Natural Gas Series? Is that a fair comparison? Explain your response.
 
 ```{r}
-
+checkresiduals(arima);checkresiduals(sarima)
 ```
-
+My nonseasoanl arima model is better the residulas are more concentrated around 0 in the third plot and there are less significant ACF spikes. 
 
 ## Checking your model with the auto.arima()
 
@@ -137,15 +156,15 @@ Compare the residual series for Q7 and Q6. Can you tell which ARIMA model is bet
 Use the $auto.arima()$ command on the **deseasonalized series** to let R choose the model parameter for you. What's the order of the best ARIMA model? Does it match what you specified in Q4?
 
 ```{r}
-
+auto.arima(deseasonal_netgen, seasonal = FALSE)
 ```
-
+This does not compare with my results - I believed the model to be autoregressive but it is moving average. I did correctly specify differencing. 
 
 ### Q10
 
 Use the $auto.arima()$ command on the **original series** to let R choose the model parameters for you. Does it match what you specified in Q7?
 
 ```{r}
-
+auto.arima(ts_netgen)
 ```
-
+This somewhat compares to mine the model is autoregressive, but I didn't correctly guess the seasonal portion to be moving average. I also incorrectly had differening nonseasonally. 
